@@ -19,13 +19,35 @@
 #define FLOAT_EXP_BITS 11
 #define FLOAT_EXP_MASK 0x7ff
 
+int* buffer = NULL;
+int buffer_size = 0;
+int buffer_index = 0;
+
+void set_buffer(int* stdout_buffer, int size)
+{
+    buffer = stdout_buffer;
+    buffer_size = size;
+    buffer_index = 0;
+}
+
 /*
  * prints a char to the screen
  * uses stdlib as an example but this would be implementation dependent in reality
 */
 void put_char(int c)
 {
-    putc(c, stdout);
+    if(buffer != NULL && buffer_size > 0)
+    {
+        if(buffer_index < buffer_size)
+        {
+            buffer[buffer_index] = c;
+            buffer_index++;
+        }
+    }
+    else
+    {
+        putc(c, stdout);
+    }
 }
 
 /*
@@ -335,7 +357,7 @@ int print_float(double val)
             n++;
             put_char('.');
             n++;
-            for(int i = 0; i < -index; i++)
+            for(int i = 0; i < -index - 1 && i < 5; i++)
             {
                 put_char('0');
                 n++;
@@ -507,7 +529,11 @@ int decode_char(const char* str, int* code)
  * When you have an invalid length specifier for a certain format or you have the length specifier and no
  * known format (or no format at all), the character '?' is outputted
 */
+#ifdef TEST
+int my_printf(const char* str, ...)
+#else
 int printf(const char* str, ...)
+#endif
 {
     int num = 0; // number of chars printed
     va_list arg_list;
@@ -583,6 +609,7 @@ int printf(const char* str, ...)
                         int32_t d = va_arg(arg_list, int32_t);
                         num += print_int((int64_t)d);
                     }
+                    str++;
                     break;
                 }
                 case 'u':
@@ -597,6 +624,7 @@ int printf(const char* str, ...)
                         uint32_t u = va_arg(arg_list, uint32_t);
                         num += print_unsigned_int((uint64_t)u);
                     }
+                    str++;
                     break;
                 }
                 case 'b':
@@ -611,6 +639,8 @@ int printf(const char* str, ...)
                         uint32_t b = va_arg(arg_list, uint32_t);
                         num += print_bin((uint64_t)b);
                     }
+                    str++;
+                    break;
                 }
                 case 'o':
                 {
@@ -624,6 +654,7 @@ int printf(const char* str, ...)
                         uint32_t o = va_arg(arg_list, uint32_t);
                         num += print_oct((uint64_t)o);
                     }
+                    str++;
                     break;
                 }
                 case 'h':
@@ -638,6 +669,7 @@ int printf(const char* str, ...)
                         uint32_t h = va_arg(arg_list, uint32_t);
                         num += print_hex((uint64_t)h);
                     }
+                    str++;
                     break;
                 }
                 case 'f':
@@ -652,6 +684,7 @@ int printf(const char* str, ...)
                         float f = (float)va_arg(arg_list, double);
                         num += print_float((double)f);
                     }
+                    str++;
                     break;
                 }
                 case 'e':
@@ -666,6 +699,7 @@ int printf(const char* str, ...)
                         float e = (float)va_arg(arg_list, double);
                         num += print_float_scientific((double)e);
                     }
+                    str++;
                     break;
                 }
                 case '%':

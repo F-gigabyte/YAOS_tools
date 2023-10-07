@@ -8,6 +8,11 @@
 #ifndef PRINTF_H
 #define PRINTF_H
 
+#ifdef TEST
+int my_printf(const char* str, ...);
+#else
 int printf(const char* str, ...);
+#endif
+void set_buffer(int* stdout_buffer, int size);
 
 #endif
