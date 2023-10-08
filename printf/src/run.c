@@ -8,9 +8,14 @@
 #include <printf.h>
 #ifdef TEST
 #include <munit.h>
+#include <malloc.h>
+#include <assert.h>
 #endif
 
 #ifdef TEST
+
+#define BUFFER_LENGTH 0x400
+
 int put_str_in_int_buffer(const char* str, int* buffer, int length)
 {
     int pos = 0;
@@ -23,24 +28,50 @@ int put_str_in_int_buffer(const char* str, int* buffer, int length)
     return pos;
 }
 
-void testFloat()
+void test_float(float f, const char* float_str)
 {
-    int buffer[19];
-    int testBuffer[19];
-    const char* res = "0.10000000149011612";
-    put_str_in_int_buffer(res, buffer, 19);
-    set_buffer(testBuffer, 19);
-    my_printf("%f", 0.1);
-    munit_assert_memory_equal(19 * sizeof(int), buffer, testBuffer);
+    int len = 0;
+    for(const char* c = float_str; *c != 0; c++, len++)
+    {
+
+    }
+    int* res_buffer = (int*)malloc(len * sizeof(int));
+    int* test_buffer = (int*)malloc(len * sizeof(int));
+    assert(put_str_in_int_buffer(float_str, res_buffer, len) == len);
+    set_buffer(test_buffer, len);
+    my_printf("%f", f);
+    munit_assert_memory_equal(len * sizeof(int), res_buffer, test_buffer);
+    printf("Test pass for %f\n", f);
+}
+
+void run_tests()
+{
+    test_float(0.1f, "0.10000");
+    test_float(0.123475f, "0.12348");
+    int a = 0xffffffff;
+    float x = *(float*)&a;
+    test_float(x, "-NaN");
+    a = 0x7fffffff;
+    x = *(float*)&a;
+    test_float(x, "NaN");
+    a = 0x7f800000;
+    x = *(float*)&a;
+    test_float(x, "INF");
+    a = 0xff800000;
+    x = *(float*)&a;
+    test_float(x, "-INF");
+    test_float(0.0000000000000001f, "0.00000000000000010000");
 }
 #endif
 
 int main()
 {
 #ifdef TEST
-    testFloat();
+    run_tests();
 #else
-    printf("%f\n", 0.1f);
+    int a = 0xffffffff;
+    float x = *(float*)&a;
+    printf("%f %f %f\n", 0.123475f, x, 0.0000000000000001f);
 #endif
     return 0;
 }

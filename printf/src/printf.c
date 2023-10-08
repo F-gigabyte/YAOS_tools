@@ -18,6 +18,7 @@
 #define FLOAT_MANTISSA_MASK 0xfffffffffffffl
 #define FLOAT_EXP_BITS 11
 #define FLOAT_EXP_MASK 0x7ff
+#define FLOAT_MAX_MAN 100000
 
 int* buffer = NULL;
 int buffer_size = 0;
@@ -275,6 +276,12 @@ int decode_float(double val, int* n, floating_decimal_64* dec)
     uint32_t exp = (float_bits >> FLOAT_MANTISSA_BITS) & FLOAT_EXP_MASK;
     uint64_t man = float_bits & FLOAT_MANTISSA_MASK;
     
+    if(sign)
+    {
+        put_char('-');
+        (*n)++;
+    }
+
     // NaN -> exp == 0xff and man != 0
     if(exp == FLOAT_EXP_MASK && man != 0)
     {
@@ -285,12 +292,6 @@ int decode_float(double val, int* n, floating_decimal_64* dec)
         put_char('N');
         (*n)++;
         return 0;
-    }
-
-    if(sign)
-    {
-        put_char('-');
-        (*n)++;
     }
 
     // INF -> exp == 0xff and man == 0
@@ -320,11 +321,36 @@ int decode_float(double val, int* n, floating_decimal_64* dec)
 }
 
 /*
+ * Rounds a 64 bit floating decimal number so that it's below FLOAT_MAX_MAN
+ * FLOAT_MAX_MAN is used to determine the number of sig figs the floating point number is rounded to
+ * It should be 1 more than the largest integer which has that many sig figs
+*/
+void round_float(floating_decimal_64* dec)
+{
+    while(dec->mantissa >= FLOAT_MAX_MAN * 10)
+    {
+        dec->mantissa /= 10;
+        dec->exponent += 1;
+    }
+    if(dec->mantissa >= FLOAT_MAX_MAN)
+    {
+        uint64_t rem = dec->mantissa % 10;
+        dec->mantissa /= 10;
+        dec->exponent += 1;
+        if(rem > 5 || (rem == 5 && (dec->mantissa & 1) == 1)) // round to nearest even if have digit 5
+        {
+            dec->mantissa++;
+        }
+    }
+}
+
+/*
  * Parses a 64 bit floating point number (using Ryu) and prints it out in long format and returns the number of
  * characters printed
  * For 32 bit floating point numbers, can cast to double
  * The number of digits printed is the shortest length decimal representation of the floating point number
- * It prints all the digits given to it and doesn't round them off
+ * It prints the float to FLOAT_SIG_FIG significant figures
+ * For the 6th sig fig digit, if > 5 rounds up, < 5 rounds down and = 5, rounds to nearest even
 */
 int print_float(double val)
 {
@@ -334,6 +360,8 @@ int print_float(double val)
     {
         return n;
     }
+
+    round_float(&dec);
 
     if(dec.exponent > 0) // essentially mantissa and enough zeroes to offset everything to correct place
     {
@@ -357,7 +385,7 @@ int print_float(double val)
             n++;
             put_char('.');
             n++;
-            for(int i = 0; i < -index - 1 && i < 5; i++)
+            for(int i = 0; i < -index - 1; i++)
             {
                 put_char('0');
                 n++;
@@ -390,8 +418,11 @@ int print_float(double val)
 }
 
 /*
- * Parses a 32 bit floating point number (using Ryu) and prints it out in scientific notation and returns the number of
+ * Parses a 64 bit floating point number (using Ryu) and prints it out in scientific notation and returns the number of
  * characters printed
+ * For 32 bit floating point numbers can cast to double 
+ * The number of digits printed is the shortest length scientific representation of the floating point number
+ * It prints the float to FLOAT_SIG_FIG significant figures
 */
 int print_float_scientific(double val)
 {
@@ -407,10 +438,11 @@ int print_float_scientific(double val)
         }
         return n;
     }
+    round_float(&dec);
     char* data = (char*)alloca(20);
     int pos = _parse_int_mag(dec.mantissa, data, 19);
     int length = 20 - pos;
-    dec.exponent += length;
+    dec.exponent += length - 1;
 
     // shouldn't be 0 but better to be safe
     if(length != 0)
