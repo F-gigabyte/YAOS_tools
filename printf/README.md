@@ -19,4 +19,7 @@ length specifiers:
  l -> int, float means int type is 64 bit wide and float type is 64 bit wide (double)  
    
 Compile Options:  
- FLOAT_MAN_MAX -> 10 ^ number of sig figs to print float to
+ FLOAT_MAN_MAX -> 10 ^ number of sig figs to print float to  
+
+# TODO
+Need to do more testing of the printf function
