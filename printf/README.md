@@ -22,4 +22,6 @@ Compile Options:
  FLOAT_MAN_MAX -> 10 ^ number of sig figs to print float to  
 
 # TODO
-Need to do more testing of the printf function
+Need to do more testing of the printf function  
+There are errors when printing floats in the general case  
+Please check the code works for your specific range of floats before using

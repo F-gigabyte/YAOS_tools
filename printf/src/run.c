@@ -44,23 +44,58 @@ void test_float(float f, const char* float_str)
     printf("Test pass for %f\n", f);
 }
 
-void run_tests()
+/*
+ * Tests combinations of NaN, INF and 0
+*/
+void test_float_special_case()
 {
-    test_float(0.1f, "0.10000");
-    test_float(0.123475f, "0.12348");
-    int a = 0xffffffff;
-    float x = *(float*)&a;
+    // zero
+    float x = 0;
+    test_float(x, "0");
+    int a = 0x80000000;
+    x = *(float*)&a;
+    test_float(x, "-0");
+    // NaN
+    a = 0xffffffff;
+    x = *(float*)&a;
     test_float(x, "-NaN");
     a = 0x7fffffff;
     x = *(float*)&a;
     test_float(x, "NaN");
+    a = 0xff800001;
+    x = *(float*)&a;
+    test_float(x, "-NaN");
+    a = 0xff80f000;
+    test_float(x, "-NaN");
+    a = 0x7f800001;
+    x = *(float*)&a;
+    test_float(x, "NaN");
+    a = 0x7f800f00;
+    x = *(float*)&a;
+    test_float(x, "NaN");
+    // INF
     a = 0x7f800000;
     x = *(float*)&a;
     test_float(x, "INF");
     a = 0xff800000;
     x = *(float*)&a;
     test_float(x, "-INF");
-    test_float(0.0000000000000001f, "0.00000000000000010000");
+}
+
+void test_float_general()
+{
+    test_float(0.1, "0.10000");
+    test_float(4.59e10, "45900000000");
+    test_float(0.5, "0.5");
+    test_float(23.789, "23.789");
+    test_float(19.27845, "19.278");
+    test_float(23e20, "2300000000000000000000");
+}
+
+void run_tests()
+{
+    test_float_special_case();
+    test_float_general();
 }
 #endif
 
@@ -71,7 +106,7 @@ int main()
 #else
     int a = 0xffffffff;
     float x = *(float*)&a;
-    printf("%f %f %f\n", 0.123475f, x, 0.0000000000000001f);
+    printf("%f %f %f, %f\n", 0.123475f, x, 0.0000000000000001f, 0.5f);
 #endif
     return 0;
 }

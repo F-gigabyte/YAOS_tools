@@ -13,6 +13,7 @@ INCLUDES=-I $(VendorDir) -I $(IncludeDir)
 MUNIT_PATH=../munit
 ObjFiles = $(ObjDir)/d2d.o $(ObjDir)/printf.o $(ObjDir)/run.o
 CC = clang
+DEBUG_FLAGS=
 
 build: $(ExeDir)/$(ExeName)
 
@@ -20,23 +21,24 @@ release: clean $(ExeDir)/$(ExeName)
 
 test: DECLARES += -DTEST
 test: INCLUDES += -I ../munit
+test: DEBUG_FLAGS += -g
 test: clean $(ExeDir)/$(TestName)
 
 $(ObjDir)/d2d.o: $(VendorDir)/ryu/d2d.c $(VendorDir)/ryu/ryu.h $(VendorDir)/ryu/common.h $(VendorDir)/ryu/d2d_intrinsics.h $(VendorDir)/ryu/d2d_full_table.h
 	$(MKDIR) -p $(ObjDir)
-	$(CC) $(DECLARES) -c $< -o $@
+	$(CC) $(DECLARES) $(DEBUG_FLAGS) -c $< -o $@
 
 $(ObjDir)/printf.o: $(SrcDir)/printf.c $(IncludeDir)/printf.h $(VendorDir)/ryu/ryu.h
 	$(MKDIR) -p $(ObjDir)
-	$(CC) $(FLAGS) $(INCLUDES) $(DECLARES) -c $< -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $(DECLARES) $(DEBUG_FLAGS) -c $< -o $@
 
 $(ObjDir)/run.o: $(SrcDir)/run.c $(IncludeDir)/printf.h
 	$(MKDIR) -p $(ObjDir)
-	$(CC) $(FLAGS) $(INCLUDES) $(DECLARES) -c $< -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $(DECLARES) $(DEBUG_FLAGS) -c $< -o $@
 
 $(ObjDir)/munit.o: $(MUNIT_PATH)/munit.c
 	$(MKDIR) -p $(ObjDir)
-	$(CC) $(FLAGS) -c $< -o $@
+	$(CC) $(FLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 $(ExeDir)/$(ExeName): $(ObjFiles)
 	$(MKDIR) -p $(ExeDir)

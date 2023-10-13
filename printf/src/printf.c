@@ -308,7 +308,7 @@ int decode_float(double val, int* n, floating_decimal_64* dec)
     }
     
     // handle case number is 0. Also do sign so can see if it's +/- 0
-    if(man == 0)
+    if(man == 0 && exp == 0)
     {
         put_char('0');
         (*n)++;
