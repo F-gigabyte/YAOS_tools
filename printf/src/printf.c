@@ -379,6 +379,7 @@ int print_float(double val)
         int pos = _parse_int_mag(dec.mantissa, data, 19);
         int length = 20 - pos;
         int index = length + dec.exponent - 1;
+        // printing floats with no integer part
         if(index < 0)
         {
             put_char('0');
@@ -390,26 +391,35 @@ int print_float(double val)
                 put_char('0');
                 n++;
             }
-        }
-        // put out all digits before decimal point as possible
-        int j = 0;
-        int first_length = -dec.exponent < length ? -dec.exponent : length; // calculate number of digits before decimal point
-        for(; j < first_length; j++)
-        {
-            put_char(data[pos]);
-            pos++;
-            n++;
-        }
-        // check if need decimal point and print it and remainder of digits if do
-        if(j < length)
-        {
-            put_char('.');
-            n++;
-            for(; j < length; j++)
+            for(int j = 0; j < length; j++)
             {
                 put_char(data[pos]);
                 pos++;
                 n++;
+            }
+        }
+        else
+        {
+            // put out all digits before decimal point
+            int j = 0;
+            int first_length = index + 1; // calculate number of digits before decimal point
+            for(; j < first_length; j++)
+            {
+                put_char(data[pos]);
+                pos++;
+                n++;
+            }
+            // check if need decimal point and print it and remainder of digits if do
+            if(j < length)
+            {
+                put_char('.');
+                n++;
+                for(; j < length; j++)
+                {
+                    put_char(data[pos]);
+                    pos++;
+                    n++;
+                }
             }
         }
     }

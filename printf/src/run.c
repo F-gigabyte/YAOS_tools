@@ -30,6 +30,7 @@ int put_str_in_int_buffer(const char* str, int* buffer, int length)
 
 void test_float(float f, const char* float_str)
 {
+    printf("Testing %f\n", f);
     int len = 0;
     for(const char* c = float_str; *c != 0; c++, len++)
     {

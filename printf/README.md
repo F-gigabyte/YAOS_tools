@@ -23,5 +23,3 @@ Compile Options:
 
 # TODO
 Need to do more testing of the printf function  
-There are errors when printing floats in the general case  
-Please check the code works for your specific range of floats before using
