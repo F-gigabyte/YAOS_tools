@@ -41,6 +41,12 @@ void test_float(float f, const char* float_str)
     assert(put_str_in_int_buffer(float_str, res_buffer, len) == len);
     set_buffer(test_buffer, len);
     my_printf("%f", f);
+    printf("Got ");
+    for(int i = 0; i < len; i++)
+    {
+        putc(test_buffer[i], stdout);
+    }
+    printf("\n");
     munit_assert_memory_equal(len * sizeof(int), res_buffer, test_buffer);
     printf("Test pass for %f\n", f);
 }
@@ -83,20 +89,37 @@ void test_float_special_case()
     test_float(x, "-INF");
 }
 
+/*
+ * Tests floats generally encountered in programs
+*/
 void test_float_general()
 {
-    test_float(0.1, "0.10000");
-    test_float(4.59e10, "45900000000");
-    test_float(0.5, "0.5");
-    test_float(23.789, "23.789");
-    test_float(19.27845, "19.278");
-    test_float(23e20, "2300000000000000000000");
+    test_float(0.1f, "0.10000");
+    test_float(4.59e10f, "45900000000");
+    test_float(0.5f, "0.5");
+    test_float(23.789f, "23.789");
+    test_float(19.27845f, "19.278");
+    test_float(23e20f, "2300000000000000000000");
+    test_float(11.0f, "11");
+    test_float(5.0f, "5");
+    test_float(2.34185f, "2.3418");
+    test_float(1.0f, "1");
+    test_float(10.0829f, "10.083");
+}
+
+/*
+ * Tests floats in subnormal range
+*/
+void test_float_subnormal()
+{
+    test_float(8e-39, "0.0000000000000000000000000000000000000080000");
 }
 
 void run_tests()
 {
     test_float_special_case();
     test_float_general();
+    test_float_subnormal();
 }
 #endif
 

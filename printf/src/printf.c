@@ -24,12 +24,14 @@ int* buffer = NULL;
 int buffer_size = 0;
 int buffer_index = 0;
 
+#ifdef TEST
 void set_buffer(int* stdout_buffer, int size)
 {
     buffer = stdout_buffer;
     buffer_size = size;
     buffer_index = 0;
 }
+#endif
 
 /*
  * prints a char to the screen
@@ -320,6 +322,8 @@ int decode_float(double val, int* n, floating_decimal_64* dec)
     return 1;
 }
 
+
+
 /*
  * Rounds a 64 bit floating decimal number so that it's below FLOAT_MAX_MAN
  * FLOAT_MAX_MAN is used to determine the number of sig figs the floating point number is rounded to
@@ -327,8 +331,11 @@ int decode_float(double val, int* n, floating_decimal_64* dec)
 */
 void round_float(floating_decimal_64* dec)
 {
+    uint64_t frac = 0;
     while(dec->mantissa >= FLOAT_MAX_MAN * 10)
     {
+        uint64_t rem = dec->mantissa % 10;
+        frac = frac * 10 + rem;
         dec->mantissa /= 10;
         dec->exponent += 1;
     }
