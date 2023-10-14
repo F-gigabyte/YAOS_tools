@@ -28,6 +28,11 @@ int put_str_in_int_buffer(const char* str, int* buffer, int length)
     return pos;
 }
 
+/*
+ * Checks if the printed output of the float f is the same as the text in float_str once float_str has been converted
+ * to an integer array of unicode characters
+ * differences in printed float and given float is that not all decimal numbers can be stored accurately in a float
+*/
 void test_float(float f, const char* float_str)
 {
     printf("Testing %f\n", f);
@@ -113,6 +118,10 @@ void test_float_general()
 void test_float_subnormal()
 {
     test_float(8e-39, "0.0000000000000000000000000000000000000080000");
+    test_float(1.4e-45, "0.0000000000000000000000000000000000000000000014013");
+    test_float(2.9e-42, "0.0000000000000000000000000000000000000000029007");
+    test_float(2.35437e-44, "0.000000000000000000000000000000000000000000023822");
+    test_float(1.17549e-38, "0.000000000000000000000000000000000000011755");
 }
 
 void run_tests()
@@ -130,7 +139,7 @@ int main()
 #else
     int a = 0xffffffff;
     float x = *(float*)&a;
-    printf("%f %f %f, %f\n", 0.123475f, x, 0.0000000000000001f, 0.5f);
+    printf("%f %f %f, %f %f\n", 0.123475f, x, 0.0000000000000001f, 0.5f, 1.4e-45f);
 #endif
     return 0;
 }
