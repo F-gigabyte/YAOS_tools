@@ -16,8 +16,10 @@ For the format:
  %% -> %  
    
 length specifiers:  
- l -> int, float means int type is 64 bit wide and float type is 64 bit wide (double)  
-   
+ l -> int  means int type is 64 bit wide  
+ floats are automatically promoted to doubles when provided as an argument  
+ The float length specifier was removed for better compatibility with the gcc printf function  
+  
 Compile Options:  
  FLOAT_MAN_MAX -> 10 ^ number of sig figs to print float to  
 

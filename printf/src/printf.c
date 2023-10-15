@@ -573,7 +573,8 @@ int decode_char(const char* str, int* code)
  * %% -> %
  *
  * length specifiers
- * l -> int, float means int type is 64 bit wide and float type is 64 bit wide (double)
+ * l -> int    means int type is 64 bit wide
+ * floats are automatically promoted to doubles when provided as an argument
  *
  * When you have an invalid length specifier for a certain format or you have the length specifier and no
  * known format (or no format at all), the character '?' is outputted
@@ -725,30 +726,28 @@ int printf(const char* str, ...)
                 {
                     if(l)
                     {
-                        double f = va_arg(arg_list, double);
-                        num += print_float(f);
+                        put_char('?');
                     }
                     else
                     {
-                        float f = (float)va_arg(arg_list, double);
-                        num += print_float((double)f);
+                        double d = va_arg(arg_list, double);
+                        num += print_float(d);
+                        str++;
                     }
-                    str++;
                     break;
                 }
                 case 'e':
                 {
                     if(l)
                     {
-                        double e = va_arg(arg_list, double);
-                        num += print_float_scientific(e);
+                        put_char('?');
                     }
                     else
                     {
-                        float e = (float)va_arg(arg_list, double);
-                        num += print_float_scientific((double)e);
+                        double e = va_arg(arg_list, double);
+                        num += print_float_scientific(e);
+                        str++;
                     }
-                    str++;
                     break;
                 }
                 case '%':
