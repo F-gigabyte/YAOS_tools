@@ -25,3 +25,4 @@ Compile Options:
 
 # TODO
 Need to do more testing of the printf function  
+There is a bug in printf.c line number 729 where num isn't incremented for the outputting of the '?' char  
